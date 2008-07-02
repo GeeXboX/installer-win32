@@ -1,0 +1,23 @@
+THIS SOFTWARE IS PROVIDED "AS IS" WITHOUT WARRANTY OF ANY KIND.
+
+
+This installer was created using NSIS (http://nsis.sourceforge.net) by making use of the following open-source software:
+
+  7-Zip (http://www.7-zip.org);
+
+  zisofs-tools (http://freshmeat.net/projects/zisofs-tools);
+
+  grub4dos (https://gna.org/projects/grub4dos);
+
+  syslinux (http://syslinux.zytor.com).
+
+
+Some parts of these packages are directly incorporated into and distributed with this installer.
+
+Licenses for these packages are available from respective URLs listed above.
+
+By agreeing to use this installer, you are accepting all applicable terms of these packages' licenses.
+
+
+For usage and license information about GeeXboX, please visit http://www.geexbox.org/en/index.html.
+
