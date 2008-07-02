@@ -7,7 +7,7 @@ OutFile "GeeXboX Installer for Windows.exe"
 !define VERSIONTYPE " beta"
 Caption "GeeXboX Installer for Windows ${VERSION}${VERSIONTYPE}"
 UninstallCaption "GeeXboX Uninstaller for Windows ${VERSION}${VERSIONTYPE}"
-BrandingText /TRIMCENTER "GeeXboX - Linux Open Media Center"
+BrandingText "GeeXboX - Linux Open Media Center"
 ShowInstDetails show
 ShowUninstDetails nevershow
 RequestExecutionLevel admin
@@ -422,13 +422,13 @@ lblextract:
 
   SetOutpath $TempFolder
   ClearErrors
-  File /a 7z.exe
+  File 7z.exe
   IfErrors lblextracterror 0
   ClearErrors
-  File /a 7z.dll
+  File 7z.dll
   IfErrors lblextracterror 0
   ClearErrors
-  File /a mkzftree.exe
+  File mkzftree.exe
   IfErrors lblextracterror lblextractiso
 
 lblextracterror:
