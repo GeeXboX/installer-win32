@@ -2,7 +2,7 @@
 # Project settings
 SetCompressor /SOLID /FINAL lzma
 Name "GeeXboX"
-OutFile "GeeXboX Installer for Windows.exe"
+OutFile "installer.exe"
 !define VERSION "0.2"
 !define VERSIONTYPE " beta"
 Caption "GeeXboX Installer for Windows ${VERSION}${VERSIONTYPE}"
