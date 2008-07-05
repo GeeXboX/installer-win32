@@ -1,42 +1,78 @@
 #!/bin/sh
-# This script downloads, patches and builds grub4dos and downloads syslinux for GeeXboX installer for Windows.
-# use '-n' to skip downloading
-# Prepared files are stored in ./GeeXboX installer for Windows
+BUILD=build
+SOURCES=sources
 
-syslinuxversion="3.63"
+GRUB4DOS=grub4dos-0.4.4-2008-06-28-src
+GRUB4DOS_URL=http://download.gna.org/grub4dos/$GRUB4DOS.zip
+SYSLINUX=syslinux-3.63
+SYSLINUX_URL=http://www.kernel.org/pub/linux/utils/boot/syslinux/$SYSLINUX.tar.bz2
+NSIS=nsis-2.37
+NSIS_URL=http://dfn.dl.sourceforge.net/sourceforge/nsis/$NSIS.zip
+LIBARCHIVE=libarchive-2.4.12
+LIBARCHIVE_BIN_URL=http://prdownloads.sourceforge.net/gnuwin32/$LIBARCHIVE-bin.zip
+LIBARCHIVE_DEP_URL=http://prdownloads.sourceforge.net/gnuwin32/$LIBARCHIVE-dep.zip
+ZISOFS=zisofs-tools-1.0.4-win32-bin
+ZISOFS_URL=http://bootcd.narod.ru/$ZISOFS.zip
 
-if (test "$1" != "-n" || ! (test -e ./grub4dos-snapshot.tar.gz)) && !(rm -f grub4dos-snapshot.tar.gz && wget http://svn.gna.org/daily/grub4dos-snapshot.tar.gz) ; then
-  echo "Retrieving grub4dos sources failed !"
-  exit 1
+mkdir -p $SOURCES
+mkdir -p $BUILD
+
+# unpack syslinux
+[ -r $SOURCES/$SYSLINUX.tar.bz2 ] || \
+  wget -O $SOURCES/$SYSLINUX.tar.bz2 $SYSLINUX_URL
+[ -d $BUILD/$SYSLINUX ] || tar xjf $SOURCES/$SYSLINUX.tar.bz2 -C $BUILD
+
+# build grub4dos
+[ -r $SOURCES/$GRUB4DOS.zip ] || \
+  wget -O $SOURCES/$GRUB4DOS.zip $GRUB4DOS_URL
+if [ ! -d $BUILD/$GRUB4DOS ]; then
+  unzip -x $SOURCES/$GRUB4DOS.zip -d $BUILD
+  cd $BUILD/$GRUB4DOS
+  patch -p1 < ../../grub4dos-geexbox.diff
+  ./configure --enable-preset-menu=preset_menu.lst
+  make -C stage2 grldr grldr.mbr grub.exe
+  cd ../..
 fi
 
-if (test "$1" != "-n" || ! (test -e ./syslinux-$syslinuxversion.tar.gz)) && !(rm -f syslinux-$syslinuxversion.tar.gz && wget http://freshmeat.net/redir/syslinux/10177/url_tgz/syslinux-3.63.tar.gz) ; then
-  echo "Retrieving syslinux sources failed !"
-  exit 1
+# unpack bsdtar
+[ -r $SOURCES/$LIBARCHIVE-bin.zip ] || \
+  wget -O $SOURCES/$LIBARCHIVE-bin.zip $LIBARCHIVE_BIN_URL
+[ -r $SOURCES/$LIBARCHIVE-dep.zip ] || \
+  wget -O $SOURCES/$LIBARCHIVE-dep.zip $LIBARCHIVE_DEP_URL
+if [ ! -d $BUILD/$LIBARCHIVE ]; then
+  mkdir -p $BUILD/$LIBARCHIVE
+  unzip -x $SOURCES/$LIBARCHIVE-bin.zip -d $BUILD/$LIBARCHIVE
+  unzip -x $SOURCES/$LIBARCHIVE-dep.zip -d $BUILD/$LIBARCHIVE
 fi
 
-if ! (tar -xf grub4dos-snapshot.tar.gz && tar -xf syslinux-$syslinuxversion.tar.gz) ; then
-  echo "Extracting sources failed !"
-  exit 1
+# unpack zisofs-tools
+[ -r $SOURCES/$ZISOFS.zip ] || \
+  wget -O $SOURCES/$ZISOFS.zip $ZISOFS_URL
+if [ ! -d $BUILD/$ZISOFS ]; then
+  mkdir -p $BUILD/$ZISOFS
+  unzip -x $SOURCES/$ZISOFS.zip -d $BUILD/$ZISOFS
 fi
 
-if !(cat ./grub4dos-geexbox.diff | patch -d grub4dos -p1) ; then
-  echo "Error patching sources !"
-  exit 1
+# unpack nsis
+[ -r $SOURCES/$NSIS.zip ] || \
+  wget -O $SOURCES/$NSIS.zip $NSIS_URL
+[ -d $BUILD/$NSIS ] || unzip -x $SOURCES/$NSIS.zip -d $BUILD
+
+# build installer
+if [ ! -d $BUILD/installer ]; then
+  mkdir -p $BUILD/installer
+  cp $BUILD/$SYSLINUX/win32/syslinux.exe $BUILD/installer
+  cp $BUILD/$GRUB4DOS/stage2/grldr $BUILD/installer/gxldr
+  cp $BUILD/$GRUB4DOS/stage2/grldr.mbr $BUILD/installer/gxldr.mbr
+  cp $BUILD/$GRUB4DOS/stage2/grub.exe $BUILD/installer/gxgrub.exe
+  cp $BUILD/$LIBARCHIVE/bin/bsdtar.exe $BUILD/installer
+  cp $BUILD/$LIBARCHIVE/bin/*.dll $BUILD/installer
+  cp $BUILD/$ZISOFS/mkzftree.exe $BUILD/installer
+  cp $BUILD/$ZISOFS/cygz.dll $BUILD/installer
+  cp geexbox.nsi $BUILD/installer
+  cp res/* $BUILD/installer
+  cd $BUILD/installer
+  NSISDIR=../$NSIS makensis geexbox.nsi
+  cp installer.exe ../..
 fi
-
-cd grub4dos
-./configure --enable-preset-menu=preset_menu.lst
-make -C stage2 grldr grldr.mbr grub.exe
-
-cd ..
-GEEXBOX="GeeXboX installer for Windows"
-mkdir -p "$GEEXBOX"
-cp -f grub4dos/stage2/grldr "$GEEXBOX/gxldr"
-cp -f grub4dos/stage2/grldr.mbr "$GEEXBOX/gxldr.mbr"
-cp -f grub4dos/stage2/grub.exe "$GEEXBOX/gxgrub.exe"
-cp -f syslinux-$syslinuxversion/win32/syslinux.exe "$GEEXBOX/syslinux.exe"
-echo "grub4dos and syslinux files have been saved to \".\\$GEEXBOX\""
-exit 0
-
 
