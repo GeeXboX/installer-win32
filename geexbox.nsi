@@ -422,14 +422,19 @@ lblextract:
 
   SetOutpath $TempFolder
   ClearErrors
-  File 7z.exe
+  File bsdtar.exe
   IfErrors lblextracterror 0
   ClearErrors
-  File 7z.dll
+  File bzip2.dll
+  IfErrors lblextracterror 0
+  ClearErrors
+  File libarchive2.dll
+  IfErrors lblextracterror 0
+  ClearErrors
+  File zlib1.dll
   IfErrors lblextracterror 0
   ClearErrors
   File mkzftree.exe
-  IfErrors lblextracterror lblextractiso
 
 lblextracterror:
   Strcpy $Processing "$ProcessingERROR!"
@@ -447,7 +452,7 @@ lblextractiso:
   Strcpy $Processing "Extracting $Iso ..."
   !insertmacro LBUpdate $IsoStatusText $Processing 0
 
-  nsExec::Exec '"$TempFolder\7z.exe" x $\"$Iso$\"'
+  nsExec::Exec '"$TempFolder\bsdtar.exe" -xf $\"$Iso$\"'
   Pop $1
   ${If} $1 == "error"
     Strcpy $Processing "$ProcessingERROR!"
