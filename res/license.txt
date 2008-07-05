@@ -3,7 +3,7 @@ THIS SOFTWARE IS PROVIDED "AS IS" WITHOUT WARRANTY OF ANY KIND.
 
 This installer was created using NSIS (http://nsis.sourceforge.net) by making use of the following open-source software:
 
-  7-Zip (http://www.7-zip.org);
+  LibArchive for Windows (http://gnuwin32.sourceforge.net/packages/libarchive.htm);
 
   zisofs-tools (http://freshmeat.net/projects/zisofs-tools);
 
