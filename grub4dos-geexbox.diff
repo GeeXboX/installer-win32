@@ -1,0 +1,152 @@
+diff -Nurp grub4dos.orig/preset_menu.lst grub4dos/preset_menu.lst
+--- grub4dos.orig/preset_menu.lst	2007-03-03 04:48:51.000000000 +0800
++++ grub4dos/preset_menu.lst	2008-05-21 03:10:50.000000000 +0800
+@@ -1,22 +1,27 @@
+ default 0
+-timeout 1
++timeout 0
+ fallback 1
+ 
+-title find /menu.lst
+-	find --set-root --ignore-floppies /menu.lst
+-	configfile /menu.lst
++title boot same partition /GEEXBOX/boot/menu.lst
++	configfile /GEEXBOX/boot/menu.lst
+ 
+-title find /boot/grub/menu.lst
++title find /GEEXBOX/boot/menu.lst
+ 	fallback 2
++	find --set-root /GEEXBOX/boot/menu.lst
++	configfile /GEEXBOX/boot/menu.lst
++
++title find /boot/grub/menu.lst (linux, including GEEXBOX)
++	fallback 3
+ 	find --set-root --ignore-floppies /boot/grub/menu.lst
+ 	configfile /boot/grub/menu.lst
+ 
+-title find /grub/menu.lst
+-	fallback 3
+-	find --set-root --ignore-floppies /grub/menu.lst
+-	configfile /grub/menu.lst
++title find /menu.lst
++	fallback 4
++	find --set-root --ignore-floppies /menu.lst
++	configfile /menu.lst
+ 
+ title commandline
++	fallback 5
+ 	commandline
+ 
+ title reboot
+diff -Nurp grub4dos.orig/stage2/asm.S grub4dos/stage2/asm.S
+--- grub4dos.orig/stage2/asm.S	2008-05-02 20:00:57.000000000 +0800
++++ grub4dos/stage2/asm.S	2008-05-21 03:07:04.000000000 +0800
+@@ -122,7 +122,7 @@ VARIABLE(version_string)
+ 	.string VERSION
+ VARIABLE(config_file)
+ #ifndef STAGE1_5
+-	.string "/boot/grub/menu.lst"
++	.string "/GEEXBOX/boot/menu.lst"
+ #else   /* STAGE1_5 */
+ 	.long	0xffffffff
+ 	.string "/boot/grub/stage2"
+diff -Nurp grub4dos.orig/stage2/grldrstart.S grub4dos/stage2/grldrstart.S
+--- grub4dos.orig/stage2/grldrstart.S	2008-03-14 19:20:12.000000000 +0800
++++ grub4dos/stage2/grldrstart.S	2008-05-21 03:04:05.000000000 +0800
+@@ -1225,13 +1225,13 @@ grldr_real_start:
+ 	ljmp	$0, $0x8200
+ 
+ launch_pre_stage2:
+-	.ascii	"\r\n\r\nBooting GRLDR...\r\n"
++	.ascii	"\r\n\r\nBooting GXLDR...\r\n"
+ 
+ 	.byte	0		/* mark the end of ascii zero string */
+ 
+ default_config_file:
+ //#ifndef PRESET_MENU_STRING
+-	.ascii	"/menu.lst"
++	.ascii	"/GEEXBOX/boot/menu.lst"
+ //#else
+ //	.ascii	"[default menu is disabled]"
+ //#endif
+@@ -1368,7 +1368,7 @@ Entry_32:
+ 	. = Entry_32 + 0x03
+ 
+ #ifdef	BOOTGRUB
+-	.ascii	"GRLDR   "	/* OEM name string (of OS which formatted the disk). */
++	.ascii	"GXLDR   "	/* OEM name string (of OS which formatted the disk). */
+ #endif
+ 
+ 	. = Entry_32 + 0x0b
+@@ -1897,7 +1897,7 @@ msg_BootError_32:
+ filename_32:
+ 
+ #ifdef	BOOTGRUB
+-	.ascii	"GRLDR      \0"
++	.ascii	"GXLDR      \0"
+ #else
+ 	.ascii	"KERNEL  SYS\0"
+ #endif
+@@ -2069,7 +2069,7 @@ Entry_12_16:
+ 	. = Entry_12_16 + 0x03
+ 
+ #ifdef	BOOTGRUB
+-	.ascii	"GRLDR   "
++	.ascii	"GXLDR   "
+ #endif
+ 
+ 	. = Entry_12_16 + 0x0b
+@@ -2742,7 +2742,7 @@ msg_BootError_12_16:
+ filename_12_16:
+ 
+ #ifdef	BOOTGRUB
+-	.ascii	"GRLDR      \0"
++	.ascii	"GXLDR      \0"
+ #else
+ 	.ascii	"KERNEL  SYS\0"
+ #endif
+@@ -2841,7 +2841,7 @@ Entry_ext2:
+ 
+ #if 0
+ 
+-	.ascii	"ext2 grldr"
++	.ascii	"ext2 gxldr"
+ 
+ #else
+ 
+@@ -3559,7 +3559,7 @@ msg_No_grldr_ext2:
+ 	.ascii	"No "
+ 
+ filename_ext2:
+-	.ascii	"grldr\0"
++	.ascii	"gxldr\0"
+ 
+ 	. = Entry_ext2 + 0x1ee
+ 
+@@ -4059,7 +4059,7 @@ msg_NTFS_Not_Found_Error:
+ 	.ascii "No "
+ 
+ nt_boot_image:
+-	.ascii "grldr\0"
++	.ascii "gxldr\0"
+ 
+ // Kernel load address, located at 0x1E8
+ 	. = Entry_nt + 0x1e8
+@@ -7832,7 +7832,7 @@ continue_string:
+ 	.ascii	"\r\nInvalid previous MBR. Press any key to start GRUB ...\0"
+ 
+ Cannot_find_GRLDR_string:
+-	.ascii	"\r\nCannot find GRLDR.\0"
++	.ascii	"\r\nCannot find GXLDR.\0"
+ 
+ prev_MBR_string:
+ 	.ascii	" to hold the screen, any other key to boot previous MBR ...\0"
+@@ -7859,7 +7859,7 @@ no_boot_signature_string:
+ 	.ascii	"\r\nNo boot signature in partition table of \0"
+ 
+ message_string_helper:
+-	.ascii	"\r\nError: Cannot find GRLDR in all devices. Press Ctrl+Alt+Del to restart.\0"
++	.ascii	"\r\nError: Cannot find GXLDR in all devices. Press Ctrl+Alt+Del to restart.\0"
+ 
+ partition_message:
+ 	.ascii	"\r\nTry (hd0,0 ) : \0"
