@@ -435,6 +435,10 @@ lblextract:
   IfErrors lblextracterror 0
   ClearErrors
   File mkzftree.exe
+  IfErrors lblextracterror lblextractiso
+  ClearErrors
+  File cygz.dll
+  IfErrors lblextracterror lblextractiso
 
 lblextracterror:
   Strcpy $Processing "$ProcessingERROR!"
