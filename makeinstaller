@@ -4,7 +4,7 @@ SOURCES=sources
 
 GRUB4DOS=grub4dos-0.4.4-2008-06-28-src
 GRUB4DOS_URL=http://download.gna.org/grub4dos/$GRUB4DOS.zip
-SYSLINUX=syslinux-3.71
+SYSLINUX=syslinux-3.72
 SYSLINUX_URL=http://www.kernel.org/pub/linux/utils/boot/syslinux/$SYSLINUX.tar.bz2
 NSIS=nsis-2.37
 NSIS_URL=http://prdownloads.sourceforge.net/nsis/$NSIS.zip
