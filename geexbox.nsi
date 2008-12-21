@@ -3,7 +3,7 @@
 SetCompressor /SOLID /FINAL lzma
 Name "GeeXboX"
 OutFile "installer.exe"
-!define VERSION "0.2"
+!define VERSION "0.21"
 !define VERSIONTYPE " beta"
 Caption "GeeXboX Installer for Windows ${VERSION}${VERSIONTYPE}"
 UninstallCaption "GeeXboX Uninstaller for Windows ${VERSION}${VERSIONTYPE}"
@@ -1219,7 +1219,7 @@ lblinstgrub1:
     IfFileExists "$BootDriveconfig.sys" 0 +2
       Rename "$BootDriveconfig.sys" "$BootDriveconfig.bak"
     FileOpen $0 "$BootDriveconfig.sys" w
-    FileWrite $0 "#This file was written by 'GeeXboX installer for Windows' for grub4dos boot loader.$\r$\n$device=gxgrub.exe$\r$\n"
+    FileWrite $0 "#This file was written by 'GeeXboX installer for Windows' for grub4dos boot loader.$\r$\ndevice=gxgrub.exe$\r$\n"
     FileClose $0
     SetDetailsPrint both
     DetailPrint "Done."
