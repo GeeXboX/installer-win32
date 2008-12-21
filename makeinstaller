@@ -6,8 +6,11 @@ GRUB4DOS=grub4dos-0.4.4-2008-11-19-src
 GRUB4DOS_URL=http://download.gna.org/grub4dos/$GRUB4DOS.zip
 SYSLINUX=syslinux-3.72
 SYSLINUX_URL=http://www.kernel.org/pub/linux/utils/boot/syslinux/$SYSLINUX.tar.bz2
-NSIS=nsis-2.37
+NSIS=nsis-2.42
 NSIS_URL=http://prdownloads.sourceforge.net/nsis/$NSIS.zip
+NSIS_SRC_URL=http://prdownloads.sourceforge.net/nsis/$NSIS-src.tar.bz2
+SCONS=scons-1.1.0.d20081207
+SCONS_URL=http://prdownloads.sourceforge.net/scons/$SCONS.tar.gz
 LIBARCHIVE=libarchive-2.4.12
 LIBARCHIVE_BIN_URL=http://prdownloads.sourceforge.net/gnuwin32/$LIBARCHIVE-bin.zip
 LIBARCHIVE_DEP_URL=http://prdownloads.sourceforge.net/gnuwin32/$LIBARCHIVE-dep.zip
@@ -56,6 +59,26 @@ fi
   wget -O $SOURCES/$NSIS.zip $NSIS_URL
 [ -d $BUILD/$NSIS ] || unzip -x $SOURCES/$NSIS.zip -d $BUILD
 
+# build scons
+[ -r $SOURCES/$SCONS.tar.gz ] || \
+  wget -O $SOURCES/$SCONS.tar.gz $SCONS_URL
+if [ ! -d $BUILD/$SCONS ]; then 
+  tar xzf $SOURCES/$SCONS.tar.gz -C $BUILD
+  cd "$BUILD/$SCONS"
+  python setup.py install --prefix="$PWD" || exit 1
+  cd ../..
+fi
+
+# build makensis
+[ -r $SOURCES/$NSIS-src.tar.bz2 ] || \
+  wget -O $SOURCES/$NSIS-src.tar.bz2 $NSIS_SRC_URL
+if [ ! -d $BUILD/$NSIS-src ]; then
+  tar xjf $SOURCES/$NSIS-src.tar.bz2 -C $BUILD
+  cd "$BUILD/$NSIS-src"
+  ../$SCONS/bin/scons SKIPSTUBS=all SKIPPLUGINS=all SKIPUTILS=all SKIPMISC=all NSIS_CONFIG_CONST_DATA=no PREFIX="$PWD" install-compiler || exit 1
+  cd ../..
+fi
+
 # build installer
 if [ ! -d $BUILD/installer ]; then
   mkdir -p $BUILD/installer
@@ -69,7 +92,7 @@ if [ ! -d $BUILD/installer ]; then
   cp geexbox.nsi $BUILD/installer
   cp res/* $BUILD/installer
   cd $BUILD/installer
-  NSISDIR=../$NSIS makensis geexbox.nsi
+  NSISDIR=../$NSIS ../$NSIS-src/bin/makensis geexbox.nsi
   cp installer.exe ../..
 fi
 
