@@ -2,7 +2,7 @@
 BUILD=build
 SOURCES=sources
 
-GRUB4DOS=grub4dos-0.4.4-2008-06-28-src
+GRUB4DOS=grub4dos-0.4.4-2008-11-19-src
 GRUB4DOS_URL=http://download.gna.org/grub4dos/$GRUB4DOS.zip
 SYSLINUX=syslinux-3.72
 SYSLINUX_URL=http://www.kernel.org/pub/linux/utils/boot/syslinux/$SYSLINUX.tar.bz2
@@ -28,8 +28,8 @@ mkdir -p $BUILD
 if [ ! -d $BUILD/$GRUB4DOS ]; then
   unzip -x $SOURCES/$GRUB4DOS.zip -d $BUILD
   cd $BUILD/$GRUB4DOS
-  patch -p1 < ../../grub4dos-geexbox.diff
-  ./configure --enable-preset-menu=preset_menu.lst
+  patch -p1 < ../../grub4dos-geexbox.diff || exit 1
+  ./configure --enable-preset-menu=../../preset_menu.lst
   make -C stage2 grldr grldr.mbr grub.exe
   cd ../..
 fi

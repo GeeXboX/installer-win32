@@ -1,0 +1,32 @@
+default 0
+timeout 0
+fallback 1
+
+title boot same partition /GEEXBOX/boot/menu.lst
+	configfile /GEEXBOX/boot/menu.lst
+ 
+title find /GEEXBOX/boot/menu.lst
+	fallback 2
+	find --set-root /GEEXBOX/boot/menu.lst
+	configfile /GEEXBOX/boot/menu.lst
+
+title find /boot/grub/menu.lst (linux, including GEEXBOX)
+	fallback 3
+	find --set-root --ignore-floppies /boot/grub/menu.lst
+	configfile /boot/grub/menu.lst
+
+title find /menu.lst
+	fallback 4
+	find --set-root --ignore-floppies /menu.lst
+	configfile /menu.lst
+ 
+title commandline
+	fallback 5
+	commandline
+
+title reboot
+	reboot
+
+title halt
+	halt
+

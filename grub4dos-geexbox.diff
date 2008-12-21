@@ -1,43 +1,3 @@
-diff -Nurp grub4dos.orig/preset_menu.lst grub4dos/preset_menu.lst
---- grub4dos.orig/preset_menu.lst	2007-03-03 04:48:51.000000000 +0800
-+++ grub4dos/preset_menu.lst	2008-05-21 03:10:50.000000000 +0800
-@@ -1,22 +1,27 @@
- default 0
--timeout 1
-+timeout 0
- fallback 1
- 
--title find /menu.lst
--	find --set-root --ignore-floppies /menu.lst
--	configfile /menu.lst
-+title boot same partition /GEEXBOX/boot/menu.lst
-+	configfile /GEEXBOX/boot/menu.lst
- 
--title find /boot/grub/menu.lst
-+title find /GEEXBOX/boot/menu.lst
- 	fallback 2
-+	find --set-root /GEEXBOX/boot/menu.lst
-+	configfile /GEEXBOX/boot/menu.lst
-+
-+title find /boot/grub/menu.lst (linux, including GEEXBOX)
-+	fallback 3
- 	find --set-root --ignore-floppies /boot/grub/menu.lst
- 	configfile /boot/grub/menu.lst
- 
--title find /grub/menu.lst
--	fallback 3
--	find --set-root --ignore-floppies /grub/menu.lst
--	configfile /grub/menu.lst
-+title find /menu.lst
-+	fallback 4
-+	find --set-root --ignore-floppies /menu.lst
-+	configfile /menu.lst
- 
- title commandline
-+	fallback 5
- 	commandline
- 
- title reboot
 diff -Nurp grub4dos.orig/stage2/asm.S grub4dos/stage2/asm.S
 --- grub4dos.orig/stage2/asm.S	2008-05-02 20:00:57.000000000 +0800
 +++ grub4dos/stage2/asm.S	2008-05-21 03:07:04.000000000 +0800
@@ -53,22 +13,15 @@ diff -Nurp grub4dos.orig/stage2/asm.S grub4dos/stage2/asm.S
 diff -Nurp grub4dos.orig/stage2/grldrstart.S grub4dos/stage2/grldrstart.S
 --- grub4dos.orig/stage2/grldrstart.S	2008-03-14 19:20:12.000000000 +0800
 +++ grub4dos/stage2/grldrstart.S	2008-05-21 03:04:05.000000000 +0800
-@@ -1225,13 +1225,13 @@ grldr_real_start:
- 	ljmp	$0, $0x8200
- 
- launch_pre_stage2:
--	.ascii	"\r\n\r\nBooting GRLDR...\r\n"
-+	.ascii	"\r\n\r\nBooting GXLDR...\r\n"
- 
- 	.byte	0		/* mark the end of ascii zero string */
+@@ -1294,7 +1294,7 @@
+ //	.byte	0		/* mark the end of ascii zero string */
  
  default_config_file:
- //#ifndef PRESET_MENU_STRING
 -	.ascii	"/menu.lst"
 +	.ascii	"/GEEXBOX/boot/menu.lst"
- //#else
- //	.ascii	"[default menu is disabled]"
- //#endif
+ 
+ 	.byte	0		/* mark the end of ascii zero string */
+ #endif	/* ! defined(GRLDR_MBR) && (! defined(GRLDR_INSTALL)) */
 @@ -1368,7 +1368,7 @@ Entry_32:
  	. = Entry_32 + 0x03
  
@@ -132,21 +85,3 @@ diff -Nurp grub4dos.orig/stage2/grldrstart.S grub4dos/stage2/grldrstart.S
  
  // Kernel load address, located at 0x1E8
  	. = Entry_nt + 0x1e8
-@@ -7832,7 +7832,7 @@ continue_string:
- 	.ascii	"\r\nInvalid previous MBR. Press any key to start GRUB ...\0"
- 
- Cannot_find_GRLDR_string:
--	.ascii	"\r\nCannot find GRLDR.\0"
-+	.ascii	"\r\nCannot find GXLDR.\0"
- 
- prev_MBR_string:
- 	.ascii	" to hold the screen, any other key to boot previous MBR ...\0"
-@@ -7859,7 +7859,7 @@ no_boot_signature_string:
- 	.ascii	"\r\nNo boot signature in partition table of \0"
- 
- message_string_helper:
--	.ascii	"\r\nError: Cannot find GRLDR in all devices. Press Ctrl+Alt+Del to restart.\0"
-+	.ascii	"\r\nError: Cannot find GXLDR in all devices. Press Ctrl+Alt+Del to restart.\0"
- 
- partition_message:
- 	.ascii	"\r\nTry (hd0,0 ) : \0"
