@@ -17,8 +17,6 @@ LIBARCHIVE_DEP_URL=http://prdownloads.sourceforge.net/gnuwin32/$LIBARCHIVE-dep.z
 TOOLS_GENERATOR=tools-generator
 TOOLS_GENERATOR_URL=http://geexbox.org/src/devel/$TOOLS_GENERATOR-win32-10.tar.bz2
 
-UPX=`which upx`
-
 mkdir -p $SOURCES
 mkdir -p $BUILD
 
@@ -98,11 +96,6 @@ if [ ! -r installer.exe ]; then
   cd $BUILD/installer
   rm -f installer.exe
   NSISDIR=../$NSIS ../$NSIS-src/bin/makensis geexbox.nsi
-  if [ -x $UPX ]; then
-    upx --best installer.exe
-  else
-    echo "Cannot find UPX, will not pack installer.exe"
-  fi
   cp installer.exe ../..
 fi
 
