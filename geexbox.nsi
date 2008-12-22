@@ -32,6 +32,9 @@ RequestExecutionLevel admin
 !insertmacro WordReplace
 !insertmacro WordFind2X
 
+# compress installer header with upx
+!packhdr tmpexe.tmp "upx --best -f -q -v --ultra-brute --all-methods --all-filters --compress-icons=0 tmpexe.tmp"
+
 #------------------------------------------------------------------------------------------#
 # Used constants and variables
 !define GrubSize 250
