@@ -91,7 +91,10 @@ if [ ! -d $BUILD/installer ]; then
   cp $BUILD/$TOOLS_GENERATOR/win32/mkzftree.exe $BUILD/installer
   cp geexbox.nsi $BUILD/installer
   cp res/* $BUILD/installer
+fi
+if [ ! -r installer.exe ]; then
   cd $BUILD/installer
+  rm -f installer.exe
   NSISDIR=../$NSIS ../$NSIS-src/bin/makensis geexbox.nsi
   cp installer.exe ../..
 fi
