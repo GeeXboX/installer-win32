@@ -1116,6 +1116,10 @@ lblcfg2lstloop:
   ${EndIf}
   ${LineRead} "$BootDriveGEEXBOX\boot\isolinux.cfg" "$0" $2
   Strcmp $2 "" lblcfg2lstloop
+  Strcpy $3 $2 13
+  Strcmp $3 "LABEL install" 0 +3
+    IntOp $0 $0 + 3
+    Goto lblcfg2lstloop
   Strcpy $3 $2 5
   Strcmp $3 "LABEL" 0 +3
     Strcpy $1 1
@@ -1124,7 +1128,6 @@ lblcfg2lstloop:
   Strcpy $3 $2 8
   Strcmp $3 "  MENU L" 0 next		; create new entry
     Strcpy $3 $2 "" 13
-    ${WordReplace} $3 "disk" "removable disk" "+" $4
     FileWrite $R0 "title $4$\r$\n"
     Goto lblcfg2lstloop
 next:
@@ -1258,13 +1261,17 @@ lblwritecfgloop:
   IntOp $1 $1 + 1
   ${If} $1 <= $R1
     ${LineRead} "$BootDriveGEEXBOX\boot\isolinux.cfg" "$1" $2
+    Strcpy $4 $2 13
+    Strcmp $4 "LABEL install" 0 +3
+      IntOp $1 $1 + 3
+      Goto lblwritecfgloop        
     ${WordReplace} $2 "boot=cdrom" "boot=$BootDevice" "+" $3
     ${WordReplace} $3 "#CFG#" "" "+" $2
     ${WordReplace} $2 "vesamenu.c32" "/GEEXBOX/boot/vesamenu.c32" "+" $3
     ${WordReplace} $3 "splash.png" "/GEEXBOX/boot/splash.png" "+" $2
     ${WordReplace} $2 "vmlinuz" "/GEEXBOX/boot/vmlinuz" "+" $3
     ${WordReplace} $3 "initrd.gz" "/GEEXBOX/boot/initrd.gz" "+" $2
-    FileWrite $0 "$2$\r$\n"
+    FileWrite $0 "$2"
     Goto lblwritecfgloop
   ${EndIf}
 
