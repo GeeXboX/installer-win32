@@ -487,7 +487,7 @@ lblcheckfiles:
   Strcpy $Processing "Checking GeeXboX file tree ..."
   !insertmacro LBUpdate $IsoStatusText $Processing 0
 
-  IfFileExists "$TempFolder\GEEXBOX\*.tar.lzma" 0 lblmissingfile
+  IfFileExists "$TempFolder\GEEXBOX\*.tar*" 0 lblmissingfile
   IfFileExists "$TempFolder\GEEXBOX\boot\vmlinuz" 0 lblmissingfile
   IfFileExists "$TempFolder\GEEXBOX\boot\initrd.gz" 0 lblmissingfile
   IfFileExists "$TempFolder\GEEXBOX\sbin\init" 0 lblmissingfile
