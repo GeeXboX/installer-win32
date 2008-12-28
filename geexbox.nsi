@@ -1128,13 +1128,13 @@ lblcfg2lstloop:
   Strcpy $3 $2 8
   Strcmp $3 "  MENU L" 0 next		; create new entry
     Strcpy $3 $2 "" 13
-    FileWrite $R0 "title $4$\r$\n"
+    FileWrite $R0 "title $3"
     Goto lblcfg2lstloop
 next:
   Strcmp $3 "  APPEND" 0 lblcfg2lstloop		; write new entry
     Strcpy $3 $2 "" 26
     ${WordReplace} $3 "boot=cdrom" "boot=$BootDevice" "+" $4
-    FileWrite $R0 "kernel=/GEEXBOX/boot/vmlinuz $4 $\r$\ninitrd=/GEEXBOX/boot/initrd.gz$\r$\n$\r$\n"
+    FileWrite $R0 "kernel=/GEEXBOX/boot/vmlinuz $4initrd=/GEEXBOX/boot/initrd.gz$\r$\n$\r$\n"
     Strcpy $1 ""
     Goto lblcfg2lstloop
 
