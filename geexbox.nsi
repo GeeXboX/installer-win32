@@ -556,7 +556,7 @@ Function InstConfig
 
   ${GetSize} "$TempFolder\install" "/S=0K" $GeexboxSize $0 $1
   SectionSetSize "copy GeeXboX" $GeexboxSize
-  Strcpy $BootDevice ""
+  Strcpy $BootDevice "UUID="
 
   nsDialogs::Create /NOUNLOAD 1018
   Pop $Dialog
@@ -582,11 +582,6 @@ lblretrygetdrive:
   Call LocateDrives
   Call CheckDriveNumber
   Strcmp $0 1 lblretrygetdrive
-
-  ${If} $BootDevice == ""
-    Strcpy $BootDevice "/dev/sda"
-  ${EndIf}
-
 
   ${If} $InstType == 1
     ${NSD_CreateLabel} 70u 18u 220u 13u ""
@@ -689,6 +684,11 @@ Function SetInstCfg
   SendMessage $DriveListBox ${CB_GETCURSEL} 0 0 $0
   System::Call /NOUNLOAD  'user32::SendMessage(i$DriveListBox, i${CB_GETLBTEXT}, ir0, t.r0)'
   Strcpy $BootDrive $0 3
+  Strcpy $0 $0 3
+  Call GetUUID
+  Strcpy $1 $0 4
+  Strcpy $2 $0 4 4
+  Strcpy $BootDevice $BootDevice$1-$2
 
   Intcmp $InstType 1 +2 0
     Return
@@ -719,20 +719,6 @@ Function LocateDrives
       Strcpy $9 $RegBootDir
       Call CheckDrive
       IntCmp $DriveNumber 1 0 lblgetdrive
-      ${If} $WinVer >= 4		; guess disk number and partition number from registry. not guaranteed to be correct!
-        Strcpy $1 ""
-        ReadRegStr $1 HKLM SYSTEM\CurrentControlSet\Control "SystemBootDevice"
-        ${If} $1 != ""
-          ${WordFind2X} $1 "(" ")" "+2" $2	; disk
-          ${WordFind2X} $1 "(" ")" "+3" $3	; rdisk
-          ${WordFind2X} $1 "(" ")" "+4" $4	; partition
-          IntOp $2 $2 + $3
-          IntOp $2 $2 + 1
-          Strcpy $3 "0abcdefghijklmnopqrstuvwxyz"
-          Strcpy $2 $3 1 $2
-          Strcpy $BootDevice "/dev/sd$2$4"
-        ${EndIf}
-      ${EndIf}
     Return
     ${EndIf}
 
@@ -1425,7 +1411,15 @@ Function CleanUpGrub
   SetDetailsPrint both
 FunctionEnd
 
-
+#--------------------------------------------#
+# Get UUID (equals volume serial) of partition
+# $0 - Drive to check
+# returns the Disc Serial Number in hex format
+Function GetUUID
+  !define GetVolumeInformation "Kernel32::GetVolumeInformation(t,t,i,*i,*i,*i,t,i) i"
+  System::Call '${GetVolumeInformation}("$0",,${NSIS_MAX_STRLEN},.r0,,,,${NSIS_MAX_STRLEN})'
+  IntFmt $0 "%08X" $0
+FunctionEnd
 
 #--------------------------------------------#
 !insertmacro MUI_LANGUAGE "English"
