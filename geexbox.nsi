@@ -1185,7 +1185,8 @@ lblinstsyslinux:
     SetDetailsPrint none
     SectionSetFlags ${WriteCfgFlag} 0
 lblinstgrub1:
-    nsExec::Exec '"sys.com" $1'
+    Strcpy $2 $WINDIR 2
+    nsExec::Exec '"$WINDIR\command\sys.com" $2 $1'
     Pop $0
     ${If} $0 == "timeout"
       SetDetailsPrint both
