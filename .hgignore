@@ -2,4 +2,4 @@ syntax: regexp
 ^build
 ^sources
 
-^installer.exe
+^geexbox-win32-installer-[0-9\.]+.exe

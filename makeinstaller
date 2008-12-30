@@ -127,11 +127,11 @@ if [ ! -d $BUILD/installer ]; then
   cp geexbox.nsi $BUILD/installer
   cp res/* $BUILD/installer
 fi
-if [ ! -r installer.exe ]; then
+if [ ! -r geexbox-win32-installer*.exe ]; then
   cd $BUILD/installer
-  rm -f installer.exe
+  rm -f geexbox-win32-installer*.exe
   PATH=../$UPX-src/src:$PATH NSISDIR=../$NSIS \
     ../$NSIS-src/bin/makensis geexbox.nsi
-  cp installer.exe ../..
+  cp geexbox-win32-installer*.exe ../..
 fi
 
