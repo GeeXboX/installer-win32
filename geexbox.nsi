@@ -1136,6 +1136,12 @@ lblcfg2lstloop:
     IntOp $0 $0 + 3
     Goto lblcfg2lstloop
   Strcpy $3 $2 5
+  Strcmp $3 "#CFG#" 0 +5
+    Strcmp $BootDrivePartType "NTFS" 0 +3
+      IntOp $0 $0 + 3
+      Goto lblcfg2lstloop
+    Strcpy $2 $2 "" 5
+  Strcpy $3 $2 5
   Strcmp $3 "LABEL" 0 +3
     Strcpy $1 1
     Goto lblcfg2lstloop
