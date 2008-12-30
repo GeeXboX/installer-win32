@@ -16,6 +16,12 @@ LIBARCHIVE_BIN_URL=http://prdownloads.sourceforge.net/gnuwin32/$LIBARCHIVE-bin.z
 LIBARCHIVE_DEP_URL=http://prdownloads.sourceforge.net/gnuwin32/$LIBARCHIVE-dep.zip
 TOOLS_GENERATOR=tools-generator
 TOOLS_GENERATOR_URL=http://geexbox.org/src/devel/$TOOLS_GENERATOR-win32-10.tar.bz2
+LZMA_SDK=lzma457
+LZMA_SDK_URL=http://prdownloads.sourceforge.net/sevenzip/$LZMA_SDK.tar.bz2
+UCL=ucl-1.03
+UCL_URL=http://www.oberhumer.com/opensource/ucl/download/$UCL.tar.gz
+UPX=upx-3.03
+UPX_URL=http://upx.sourceforge.net/download/$UPX-src.tar.bz2
 
 mkdir -p $SOURCES
 mkdir -p $BUILD
@@ -79,6 +85,35 @@ if [ ! -d $BUILD/$NSIS-src ]; then
   cd ../..
 fi
 
+# unpack LZMA SDK
+[ -r $SOURCES/$LZMA_SDK.tar.bz2 ] || \
+  wget -O $SOURCES/$LZMA_SDK.tar.bz2 $LZMA_SDK_URL
+if [ ! -d $BUILD/$LZMA_SDK ]; then
+  mkdir $BUILD/$LZMA_SDK
+  tar xjf $SOURCES/$LZMA_SDK.tar.bz2 -C $BUILD/$LZMA_SDK
+fi
+
+# build UCL
+[ -r $SOURCES/$UCL.tar.gz ] || \
+  wget -O $SOURCES/$UCL.tar.gz $UCL_URL
+if [ ! -d $BUILD/$UCL ]; then
+  tar xzf $SOURCES/$UCL.tar.gz -C $BUILD
+  cd $BUILD/$UCL
+  ./configure --enable-static --disable-shared --disable-dependency-tracking
+  make
+  cd ../..
+fi
+
+# build UPX
+[ -r $SOURCES/$UPX-src.tar.bz2 ] || \
+  wget -O $SOURCES/$UPX-src.tar.bz2 $UPX_URL
+if [ ! -d $BUILD/$UPX-src ]; then
+  tar xjf $SOURCES/$UPX-src.tar.bz2 -C $BUILD
+  cd $BUILD/$UPX-src/src
+  UPX_UCLDIR=../../$UCL UPX_LZMADIR=../../$LZMA_SDK make
+  cd ../../..
+fi
+
 # build installer
 if [ ! -d $BUILD/installer ]; then
   mkdir -p $BUILD/installer
@@ -95,7 +130,8 @@ fi
 if [ ! -r installer.exe ]; then
   cd $BUILD/installer
   rm -f installer.exe
-  NSISDIR=../$NSIS ../$NSIS-src/bin/makensis geexbox.nsi
+  PATH=../$UPX-src/src:$PATH NSISDIR=../$NSIS \
+    ../$NSIS-src/bin/makensis geexbox.nsi
   cp installer.exe ../..
 fi
 
