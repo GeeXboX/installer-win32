@@ -9,8 +9,9 @@ This installer was created using NSIS (http://nsis.sourceforge.net) by making us
 
   grub4dos (https://gna.org/projects/grub4dos);
 
-  syslinux (http://syslinux.zytor.com).
+  syslinux (http://syslinux.zytor.com);
 
+  UPX (http://upx.sourceforge.net).
 
 Some parts of these packages are directly incorporated into and distributed with this installer.
 
