@@ -2,11 +2,10 @@
 # Project settings
 SetCompressor /SOLID /FINAL lzma
 Name "GeeXboX"
-!define VERSION "0.21"
-!define VERSIONTYPE " beta"
+!define VERSION "0.22"
 OutFile "geexbox-win32-installer-${VERSION}.exe"
-Caption "GeeXboX Installer for Windows ${VERSION}${VERSIONTYPE}"
-UninstallCaption "GeeXboX Uninstaller for Windows ${VERSION}${VERSIONTYPE}"
+Caption "GeeXboX Installer for Windows ${VERSION}"
+UninstallCaption "GeeXboX Uninstaller for Windows ${VERSION}"
 BrandingText "GeeXboX - Linux Open Media Center"
 ShowInstDetails show
 ShowUninstDetails nevershow
