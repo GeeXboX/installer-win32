@@ -55,6 +55,7 @@ Var /GLOBAL TimeOut
 Var /GLOBAL TimeOutValue
 Var /GLOBAL TimeOutBU
 Var /GLOBAL BootDrive
+Var /GLOBAL BootDrivePartType
 Var /GLOBAL DefaultOSFlag
 Var /GLOBAL DefaultOSBU
 Var /GLOBAL NoGrub
@@ -265,7 +266,6 @@ Function SetInstType
   ${EndIf}
 
 FunctionEnd
-
 
 #--------------------------------------------#
 Function SelectIso
@@ -556,7 +556,6 @@ Function InstConfig
 
   ${GetSize} "$TempFolder\install" "/S=0K" $GeexboxSize $0 $1
   SectionSetSize "copy GeeXboX" $GeexboxSize
-  Strcpy $BootDevice "UUID="
 
   nsDialogs::Create /NOUNLOAD 1018
   Pop $Dialog
@@ -684,11 +683,41 @@ Function SetInstCfg
   SendMessage $DriveListBox ${CB_GETCURSEL} 0 0 $0
   System::Call /NOUNLOAD  'user32::SendMessage(i$DriveListBox, i${CB_GETLBTEXT}, ir0, t.r0)'
   Strcpy $BootDrive $0 3
-  Strcpy $0 $0 3
-  Call GetUUID
-  Strcpy $1 $0 4
-  Strcpy $2 $0 4 4
-  Strcpy $BootDevice $BootDevice$1-$2
+
+!define GENERIC_READ 0x80000000
+!define GENERIC_WRITE 0x40000000
+!define FILE_SHARE_READ 1
+!define FILE_SHARE_WRITE 2
+!define OPEN_EXISTING 3
+!define FSCTL_GET_NTFS_VOLUME_DATA 0x00090064
+!define FILE_ATTRIBUTE_NORMAL 0x80
+!define NTFS_VOLUME_DATA_SIZE 96
+
+lblgetparttype:
+  Strcpy $0 $BootDrive
+  System::Call /NOUNLOAD 'kernel32::GetVolumeInformation(t r0, t .., i 1024, *i .r1, i .., i .., t .r2, i 1024 ) i ..'
+  Strcpy $BootDrivePartType $2
+  
+lblgetuuid:
+  ${If} $BootDrivePartType == "NTFS"
+    Strcpy $0 $BootDrive 2
+    Strcpy $0 "\\.\$0"  
+    System::Call "kernel32::CreateFile(t r0, i ${GENERIC_READ}|${GENERIC_WRITE}, i ${FILE_SHARE_READ}|${FILE_SHARE_WRITE}, i 0, i ${OPEN_EXISTING}, i ${FILE_ATTRIBUTE_NORMAL}, i 0) i .r0"
+    System::Alloc ${NTFS_VOLUME_DATA_SIZE}
+    Pop $6
+    System::Call "kernel32::DeviceIoControl(i r0, i ${FSCTL_GET_NTFS_VOLUME_DATA}, i 0, i 0, i r6, i ${NTFS_VOLUME_DATA_SIZE}, *i .r1, i 0) i .."
+    System::Call "kernel32::CloseHandle(i r0)"
+    System::Call "*$6(i .r2, i .r3)"
+    System::Free $6
+    IntFmt $2 "%08X" $2
+    IntFmt $3 "%08X" $3
+    Strcpy $BootDevice "UUID=$3$2"
+  ${Else}  
+    IntFmt $0 "%08X" $1
+    Strcpy $1 $0 4
+    Strcpy $2 $0 4 4
+    Strcpy $BootDevice "UUID=$1-$2"
+  ${EndIf}
 
   Intcmp $InstType 1 +2 0
     Return
@@ -1410,16 +1439,6 @@ Function CleanUpGrub
   ${EndIf}
   ${EndIf}
   SetDetailsPrint both
-FunctionEnd
-
-#--------------------------------------------#
-# Get UUID (equals volume serial) of partition
-# $0 - Drive to check
-# returns the Disc Serial Number in hex format
-Function GetUUID
-  !define GetVolumeInformation "Kernel32::GetVolumeInformation(t,t,i,*i,*i,*i,t,i) i"
-  System::Call '${GetVolumeInformation}("$0",,${NSIS_MAX_STRLEN},.r0,,,,${NSIS_MAX_STRLEN})'
-  IntFmt $0 "%08X" $0
 FunctionEnd
 
 #--------------------------------------------#
