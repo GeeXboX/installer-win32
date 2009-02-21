@@ -96,7 +96,7 @@ Please read the GUI messages on upcoming pages carefully as you proceed through 
 # Finish Page Setting
 !define MUI_FINISHPAGE_TITLE "GeeXboX installation complete !"
 !define MUI_FINISHPAGE_TEXT_LARGE
-!define MUI_FINISHPAGE_TEXT "$\nGeeXboX has been succesfully installed to $BootDrive.$\n$\n$\n$\nFor more information on using GeeXboX, please click on the link underneath to visit GeeXboX homepage.$\n$\n$\n$\nThanks for using GeeXboX Installer for Windows."
+!define MUI_FINISHPAGE_TEXT "$\nGeeXboX has been successfully installed to $BootDrive. To avoid any chance of data corruption please do NOT remove the $BootDrive disk until this window is fully closed.$\n$\n$\n$\nFor more information on using GeeXboX, please click on the link underneath to visit GeeXboX homepage.$\n$\n$\n$\nThanks for using GeeXboX Installer for Windows."
 !define MUI_FINISHPAGE_LINK "Visit GeeXboX homepage."
 !define MUI_FINISHPAGE_LINK_LOCATION "http://www.geexbox.org/en/index.html"
 
