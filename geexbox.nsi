@@ -434,9 +434,6 @@ lblextract:
   IfErrors lblextracterror 0
   ClearErrors
   File zlib1.dll
-  IfErrors lblextracterror 0
-  ClearErrors
-  File mkzftree.exe
   IfErrors lblextracterror lblextractiso
 
 lblextracterror:
@@ -492,7 +489,7 @@ lblcheckfiles:
   IfFileExists "$TempFolder\GEEXBOX\sbin\init" 0 lblmissingfile
   IfFileExists "$TempFolder\GEEXBOX\etc\mplayer\mplayer.conf" 0 lblmissingfile
   IfFileExists "$TempFolder\GEEXBOX\boot\isolinux.cfg" 0 lblmissingfile
-  Goto lbldecompress
+  Goto lblcheckok
 
 lblmissingfile:
 
@@ -506,37 +503,7 @@ lblabort:
   Call CleanUp
   return
 
-
-lbldecompress:
-  Strcpy $Processing "$ProcessingOK."
-  !insertmacro LBUpdate $IsoStatusText $Processing 1
-  Strcpy $Processing "Decompressing GeeXboX file tree ..."
-  !insertmacro LBUpdate $IsoStatusText $Processing 0
-
-  IfFileExists "$TempFolder\install\*.*" 0 +2
-    RMDir /r "$TempFolder\install"
-  nsExec::Exec '"$TempFolder\mkzftree.exe" -u $\"$TempFolder\GEEXBOX$\" install'
-  Pop $1
-  ${If} $1 == "error"
-    Strcpy $Processing "$ProcessingERROR!"
-    !insertmacro LBUpdate $IsoStatusText $Processing 1
-    MessageBox MB_OKCANCEL|MB_ICONEXCLAMATION "Error decompressing GeeXboX file tree !$\n$\nThe ISO could be corrupt or there might be something wrong with your $TEMP.$\n$\nPress 'OK' to retry or 'Cancel' to exit the installer." IDOK lbldecompressretry IDCANCEL 0
-    Call CleanUp
-    Quit
-
-lbldecompressretry:
-  Strcpy $Processing "Retry decompressing GeeXboX file tree ? "
-  !insertmacro LBUpdate $IsoStatusText $Processing 0
-  Goto lbldecompress
-
-  ${ElseIf} $1 == "timeout"
-    Strcpy $Processing "$ProcessingTIMEOUT!"
-    !insertmacro LBUpdate $IsoStatusText $Processing 1
-    MessageBox MB_OKCANCEL|MB_ICONEXCLAMATION "Decompressing of GeeXboX file tree timeout!$\n$\nPress 'OK' to retry or 'Cancel' to exit the installer." IDOK lbldecompressretry IDCANCEL 0
-    Call CleanUp
-    Quit
-  ${EndIf}
-
+lblcheckok:
   Strcpy $Processing "$ProcessingOK."
   !insertmacro LBUpdate $IsoStatusText $Processing 1
   !insertmacro MUI_HEADER_TEXT "GeeXboX ISO processing success" "Click on <Next> button to proceed."
@@ -553,7 +520,7 @@ Function InstConfig
 
   !insertmacro MUI_HEADER_TEXT "Configure GeeXboX Installation" "Click on <Install> button to start installation"
 
-  ${GetSize} "$TempFolder\install" "/S=0K" $GeexboxSize $0 $1
+  ${GetSize} "$TempFolder\GEEXBOX" "/S=0K" $GeexboxSize $0 $1
   SectionSetSize "copy GeeXboX" $GeexboxSize
 
   nsDialogs::Create /NOUNLOAD 1018
@@ -839,7 +806,7 @@ Function CopyGeexbox
   SetDetailsPrint both
   DetailPrint "Installing GeeXboX to $BootDrive ..."
   DetailPrint "Checking source directory ..."
-  IfFileExists "$TempFolder\install\*.*" lblchecktarget 0
+  IfFileExists "$TempFolder\GEEXBOX\*.*" lblchecktarget 0
   MessageBox MB_OK|MB_ICONEXCLAMATION "Decompressed GeeXboX files not found!$\r$\nThis is a fatal error and installation can not proceed.$\r$\nPress 'OK' to exit the installer."
   Call CleanUp
   Quit 
@@ -894,7 +861,7 @@ lblcopygeexbox:
   DetailPrint "Copying GeeXboX files ..."
   SetDetailsPrint none
   ClearErrors
-  CopyFiles /SILENT "$TempFolder\install\*.*" "$BootDriveGEEXBOX\"
+  CopyFiles /SILENT "$TempFolder\GEEXBOX\*.*" "$BootDriveGEEXBOX\"
   SetDetailsPrint both
   IfErrors +4 0
     DetailPrint "Done"

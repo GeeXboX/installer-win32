@@ -14,8 +14,6 @@ SCONS_URL=http://prdownloads.sourceforge.net/scons/$SCONS.tar.gz
 LIBARCHIVE=libarchive-2.4.12
 LIBARCHIVE_BIN_URL=http://prdownloads.sourceforge.net/gnuwin32/$LIBARCHIVE-bin.zip
 LIBARCHIVE_DEP_URL=http://prdownloads.sourceforge.net/gnuwin32/$LIBARCHIVE-dep.zip
-TOOLS_GENERATOR=tools-generator
-TOOLS_GENERATOR_URL=http://geexbox.org/src/devel/$TOOLS_GENERATOR-win32-10.tar.bz2
 LZMA_SDK=lzma457
 LZMA_SDK_URL=http://prdownloads.sourceforge.net/sevenzip/$LZMA_SDK.tar.bz2
 UCL=ucl-1.03
@@ -53,12 +51,6 @@ if [ ! -d $BUILD/$LIBARCHIVE ]; then
   unzip -x $SOURCES/$LIBARCHIVE-bin.zip -d $BUILD/$LIBARCHIVE
   unzip -x $SOURCES/$LIBARCHIVE-dep.zip -d $BUILD/$LIBARCHIVE
 fi
-
-# unpack tools-generator
-[ -r $SOURCES/$TOOLS_GENERATOR.tar.bz2 ] || \
-  wget -O $SOURCES/$TOOLS_GENERATOR.tar.bz2 $TOOLS_GENERATOR_URL
-[ -d $BUILD/$TOOLS_GENERATOR ] || \
-  tar xjf $SOURCES/$TOOLS_GENERATOR.tar.bz2 -C $BUILD
 
 # unpack nsis
 [ -r $SOURCES/$NSIS.zip ] || \
@@ -123,7 +115,6 @@ if [ ! -d $BUILD/installer ]; then
   cp $BUILD/$GRUB4DOS/stage2/grub.exe $BUILD/installer/gxgrub.exe
   cp $BUILD/$LIBARCHIVE/bin/bsdtar.exe $BUILD/installer
   cp $BUILD/$LIBARCHIVE/bin/*.dll $BUILD/installer
-  cp $BUILD/$TOOLS_GENERATOR/win32/mkzftree.exe $BUILD/installer
   cp geexbox.nsi $BUILD/installer
   cp res/* $BUILD/installer
 fi
