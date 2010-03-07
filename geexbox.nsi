@@ -2,7 +2,7 @@
 # Project settings
 SetCompressor /SOLID /FINAL lzma
 Name "GeeXboX"
-!define VERSION "0.22"
+!define VERSION "0.23"
 OutFile "geexbox-win32-installer-${VERSION}.exe"
 Caption "GeeXboX Installer for Windows ${VERSION}"
 UninstallCaption "GeeXboX Uninstaller for Windows ${VERSION}"
