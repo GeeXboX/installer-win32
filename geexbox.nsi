@@ -239,7 +239,7 @@ Function SelectInstType
   ${If} $InstType == 1
     ${NSD_SetState} $MultiBootInst 1
   ${Else}
-    ${NSD_SetState} $DedicatedInst 1   
+    ${NSD_SetState} $DedicatedInst 1
   ${EndIf}
   nsDialogs::Show
 
@@ -261,7 +261,7 @@ Function SetInstType
     SectionSetFlags ${WriteLstFlag} 0
     SectionSetFlags ${InstSyslinuxFlag} 1
     SectionSetFlags ${WriteCfgFlag} 1
-    SectionSetFlags ${WriteUninstFlag} 0 
+    SectionSetFlags ${WriteUninstFlag} 0
   ${EndIf}
 
 FunctionEnd
@@ -351,7 +351,7 @@ FunctionEnd
 # Remove last string (if OPTYPE is 1) of list box LB and add MESSAGE
 # Crude way to imitate a log window
 !macro LBUpdate LB MESSAGE OPTYPE
-  Strcmp ${OPTYPE} "1" 0 +5 
+  Strcmp ${OPTYPE} "1" 0 +5
   SendMessage ${LB} ${LB_GETCOUNT} 0 0 $0
   Strcmp $0 "0" +3 0
     IntOp $0 $0 - 1
@@ -444,7 +444,7 @@ lblextracterror:
   Quit
   Strcpy $Processing "Retry extracting installation tools ? "
   !insertmacro LBUpdate $IsoStatusText $Processing 0
-  Goto lblextract  
+  Goto lblextract
 
 lblextractiso:
   Strcpy $Processing "$ProcessingOK."
@@ -466,7 +466,7 @@ lblextractisoretry:
   !insertmacro LBUpdate $IsoStatusText $Processing 0
   RMDir /r "$TempFolder\GEEXBOX"
   RMDir /r "$TempFolder\[BOOT]"
-  Goto lblextractiso 
+  Goto lblextractiso
 
   ${ElseIf} $1 == "timeout"
     Strcpy $Processing "$ProcessingTIMEOUT!"
@@ -660,11 +660,11 @@ lblgetparttype:
   Strcpy $0 $BootDrive
   System::Call /NOUNLOAD 'kernel32::GetVolumeInformation(t r0, t .., i 1024, *i .r1, i .., i .., t .r2, i 1024 ) i ..'
   Strcpy $BootDrivePartType $2
-  
+
 lblgetuuid:
   ${If} $BootDrivePartType == "NTFS"
     Strcpy $0 $BootDrive 2
-    Strcpy $0 "\\.\$0"  
+    Strcpy $0 "\\.\$0"
     System::Call "kernel32::CreateFile(t r0, i ${GENERIC_READ}|${GENERIC_WRITE}, i ${FILE_SHARE_READ}|${FILE_SHARE_WRITE}, i 0, i ${OPEN_EXISTING}, i ${FILE_ATTRIBUTE_NORMAL}, i 0) i .r0"
     System::Alloc ${NTFS_VOLUME_DATA_SIZE}
     Pop $6
@@ -675,7 +675,7 @@ lblgetuuid:
     IntFmt $2 "%08X" $2
     IntFmt $3 "%08X" $3
     Strcpy $BootDevice "UUID=$3$2"
-  ${Else}  
+  ${Else}
     IntFmt $0 "%08X" $1
     Strcpy $1 $0 4
     Strcpy $2 $0 4 4
@@ -691,7 +691,7 @@ lblgetuuid:
   ${NSD_GetState} $DefaultOS $0
   Strcpy $DefaultOSFlag $0
 
-  SendMessage $TimeOut ${CB_GETCURSEL} 0 0 $0 
+  SendMessage $TimeOut ${CB_GETCURSEL} 0 0 $0
   System::Call /NOUNLOAD  'user32::SendMessage(i$TimeOut, i${CB_GETLBTEXT}, ir0, t.r0)'
   Strcpy $TimeOutValue $0
 
@@ -751,7 +751,7 @@ Function CheckDrive
     System::Call /NOUNLOAD 'kernel32::GetVolumeInformation(t r9, t .r1, i 1024, i .., i .., i .., t .r2, i 1024 ) i ..'
     Strcmp $2 "" lblgetdrive
     Strcmp $1 "" 0 +2
-      Strcpy $1 "NoLabel"      
+      Strcpy $1 "NoLabel"
     Strcpy $3 $2 3
     Strcmp $3 "FAT" 0 +3
       IntOp $0 1 + 0
@@ -806,7 +806,7 @@ Function CopyGeexbox
   IfFileExists "$TempFolder\GEEXBOX\*.*" lblchecktarget 0
   MessageBox MB_OK|MB_ICONEXCLAMATION "Decompressed GeeXboX files not found!$\r$\nThis is a fatal error and installation can not proceed.$\r$\nPress 'OK' to exit the installer."
   Call CleanUp
-  Quit 
+  Quit
 
 lblchecktarget:
   DetailPrint "Done"
@@ -965,7 +965,7 @@ lblbcdedit2:
   Strcpy $0 $BootDrive 2
   nsExec::Exec '"bcdedit" /set $VistaID device  partition=$0'
   nsExec::Exec '"bcdedit" /set $VistaID path \gxldr.mbr'
-  nsExec::Exec '"bcdedit" /displayorder $VistaID /addlast' 
+  nsExec::Exec '"bcdedit" /displayorder $VistaID /addlast'
   nsExec::Exec '"bcdedit" /timeout $TimeOutValue'
   ${If} $DefaultOSFlag == 1
      nsExec::Exec '"bcdedit" /default $VistaID'
@@ -1053,7 +1053,7 @@ Function WriteGrubMenu
   Call CleanUp
   Call CleanUpRoot
   Call CleanUpGrub
-  Quit 
+  Quit
 
 lblcfg:
 
@@ -1197,7 +1197,7 @@ lblinstgrub1:
       Call CleanUp
       Call CleanUpRoot
       Quit
-    ${EndIf}    
+    ${EndIf}
     SetOutPath $BootDrive
     File gxgrub.exe
     IfFileExists "$BootDriveconfig.sys" 0 +2
@@ -1226,7 +1226,7 @@ Function WriteSyslinuxCfg
   Call CleanUp
   Call CleanUpRoot
   Call CleanUpGrub
-  Quit 
+  Quit
 
 lblwritecfg:
 
@@ -1242,7 +1242,7 @@ lblwritecfgloop:
     Strcpy $4 $2 13
     Strcmp $4 "LABEL install" 0 +3
       IntOp $1 $1 + 3
-      Goto lblwritecfgloop        
+      Goto lblwritecfgloop
     ${WordReplace} $2 "vesamenu.c32" "/GEEXBOX/boot/vesamenu.c32" "+" $3
     ${WordReplace} $3 "splash.png" "/GEEXBOX/boot/splash.png" "+" $2
     ${WordReplace} $2 "vmlinuz" "/GEEXBOX/boot/vmlinuz" "+" $3
@@ -1360,7 +1360,7 @@ lbluninstall:
       ${If} $DefaultOSFlag == 1
         WriteIniStr "$BootDriveconfig.sys" "menu" "menudefault" $DefaultOSBU
         FlushINI "$BootDriveconfig.sys"
-      ${EndIf} 
+      ${EndIf}
     SetFileAttributes "$BootDriveconfig.sys" HIDDEN|SYSTEM|READONLY
   ${EndIf}
   DeleteRegKey HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\GEEXBOX"
