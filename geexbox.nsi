@@ -1117,8 +1117,7 @@ lblcfg2lstloop:
 next:
   Strcmp $3 "  APPEND" 0 lblcfg2lstloop		; write new entry
     Strcpy $3 $2 "" 26
-    ${WordReplace} $3 "boot=cdrom" "boot=$BootDevice" "+" $4
-    FileWrite $R0 "kernel=/GEEXBOX/boot/vmlinuz $4initrd=/GEEXBOX/boot/initrd.gz$\r$\n$\r$\n"
+    FileWrite $R0 "kernel=/GEEXBOX/boot/vmlinuz $3initrd=/GEEXBOX/boot/initrd.gz$\r$\n$\r$\n"
     Strcpy $1 ""
     Goto lblcfg2lstloop
 
@@ -1250,8 +1249,6 @@ lblwritecfgloop:
     Strcmp $4 "LABEL install" 0 +3
       IntOp $1 $1 + 3
       Goto lblwritecfgloop        
-    ${WordReplace} $2 "boot=cdrom" "boot=$BootDevice" "+" $3
-    ${WordReplace} $3 "#CFG#" "" "+" $2
     ${WordReplace} $2 "vesamenu.c32" "/GEEXBOX/boot/vesamenu.c32" "+" $3
     ${WordReplace} $3 "splash.png" "/GEEXBOX/boot/splash.png" "+" $2
     ${WordReplace} $2 "vmlinuz" "/GEEXBOX/boot/vmlinuz" "+" $3
