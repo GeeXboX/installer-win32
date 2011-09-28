@@ -1,10 +1,10 @@
-#!/bin/sh
+#!/bin/sh -e
 BUILD=build
 SOURCES=sources
 
-GRUB4DOS=grub4dos-0.4.4-2008-11-19-src
-GRUB4DOS_URL=http://download.gna.org/grub4dos/$GRUB4DOS.zip
-SYSLINUX=syslinux-3.83
+GRUB4DOS=grub4dos-0.4.4
+GRUB4DOS_URL=http://download.gna.org/grub4dos/$GRUB4DOS-src.zip
+SYSLINUX=syslinux-4.04
 SYSLINUX_URL=http://www.kernel.org/pub/linux/utils/boot/syslinux/$SYSLINUX.tar.bz2
 NSIS=nsis-2.46
 NSIS_URL=http://prdownloads.sourceforge.net/nsis/$NSIS.zip
@@ -27,16 +27,20 @@ mkdir -p $BUILD
 # unpack syslinux
 [ -r $SOURCES/$SYSLINUX.tar.bz2 ] || \
   wget -O $SOURCES/$SYSLINUX.tar.bz2 $SYSLINUX_URL
-[ -d $BUILD/$SYSLINUX ] || tar xjf $SOURCES/$SYSLINUX.tar.bz2 -C $BUILD
+if [ ! -r $BUILD/$SYSLINUX/win32/syslinux.exe ]; then
+  rm -rf $BUILD/$SYSLINUX
+  tar xjf $SOURCES/$SYSLINUX.tar.bz2 -C $BUILD
+fi
 
 # build grub4dos
 [ -r $SOURCES/$GRUB4DOS.zip ] || \
   wget -O $SOURCES/$GRUB4DOS.zip $GRUB4DOS_URL
-if [ ! -d $BUILD/$GRUB4DOS ]; then
+if [ ! -r $BUILD/$GRUB4DOS/stage2/grldr ]; then
+  rm -rf $BUILD/$GRUB4DOS
   unzip -x $SOURCES/$GRUB4DOS.zip -d $BUILD
   cd $BUILD/$GRUB4DOS
-  patch -p1 < ../../grub4dos-geexbox.diff || exit 1
-  ./configure --enable-preset-menu=../../preset_menu.lst
+  patch -p1 < ../../grub4dos-geexbox.diff
+  sh ./configure --enable-preset-menu=../../preset_menu.lst
   make -C stage2 grldr grldr.mbr grub.exe
   cd ../..
 fi
