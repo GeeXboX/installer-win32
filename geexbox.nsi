@@ -2,7 +2,7 @@
 # Project settings
 SetCompressor /SOLID /FINAL lzma
 Name "GeeXboX"
-!define VERSION "0.23"
+!define VERSION "0.24"
 OutFile "geexbox-win32-installer-${VERSION}.exe"
 Caption "GeeXboX Installer for Windows ${VERSION}"
 UninstallCaption "GeeXboX Uninstaller for Windows ${VERSION}"
@@ -464,7 +464,10 @@ lblextractiso:
 lblextractisoretry:
   Strcpy $Processing "Retry extracting $Iso ? "
   !insertmacro LBUpdate $IsoStatusText $Processing 0
-  RMDir /r "$TempFolder\GEEXBOX"
+  Delete "$TempFolder\vmlinuz"
+  Delete "$TempFolder\initrd"
+  Delete "$TempFolder\rootfs"
+  RMDir /r "$TempFolder\isolinux"
   RMDir /r "$TempFolder\[BOOT]"
   Goto lblextractiso
 
@@ -483,9 +486,10 @@ lblcheckfiles:
   Strcpy $Processing "Checking GeeXboX file tree ..."
   !insertmacro LBUpdate $IsoStatusText $Processing 0
 
-  IfFileExists "$TempFolder\GEEXBOX\boot\vmlinuz" 0 lblmissingfile
-  IfFileExists "$TempFolder\GEEXBOX\boot\initrd.gz" 0 lblmissingfile
-  IfFileExists "$TempFolder\GEEXBOX\boot\isolinux.cfg" 0 lblmissingfile
+  IfFileExists "$TempFolder\vmlinuz" 0 lblmissingfile
+  IfFileExists "$TempFolder\initrd" 0 lblmissingfile
+  IfFileExists "$TempFolder\rootfs" 0 lblmissingfile
+  IfFileExists "$TempFolder\isolinux\isolinux.cfg" 0 lblmissingfile
   Goto lblcheckok
 
 lblmissingfile:
@@ -517,7 +521,7 @@ Function InstConfig
 
   !insertmacro MUI_HEADER_TEXT "Configure GeeXboX Installation" "Click on <Install> button to start installation"
 
-  ${GetSize} "$TempFolder\GEEXBOX" "/S=0K" $GeexboxSize $0 $1
+  ${GetSize} "$TempFolder" "/S=0K" $GeexboxSize $0 $1
   SectionSetSize "copy GeeXboX" $GeexboxSize
 
   nsDialogs::Create /NOUNLOAD 1018
@@ -803,7 +807,7 @@ Function CopyGeexbox
   SetDetailsPrint both
   DetailPrint "Installing GeeXboX to $BootDrive ..."
   DetailPrint "Checking source directory ..."
-  IfFileExists "$TempFolder\GEEXBOX\*.*" lblchecktarget 0
+  IfFileExists "$TempFolder\rootfs" lblchecktarget 0
   MessageBox MB_OK|MB_ICONEXCLAMATION "Decompressed GeeXboX files not found!$\r$\nThis is a fatal error and installation can not proceed.$\r$\nPress 'OK' to exit the installer."
   Call CleanUp
   Quit
@@ -858,7 +862,7 @@ lblcopygeexbox:
   DetailPrint "Copying GeeXboX files ..."
   SetDetailsPrint none
   ClearErrors
-  CopyFiles /SILENT "$TempFolder\GEEXBOX\*.*" "$BootDriveGEEXBOX\"
+  CopyFiles /SILENT "$TempFolder\*.*" "$BootDriveGEEXBOX\"
   SetDetailsPrint both
   IfErrors +4 0
     DetailPrint "Done"
@@ -1048,8 +1052,8 @@ Function WriteGrubMenu
   SetDetailsPrint both
   DetailPrint "Writing $BootDriveGEEXBOX\boot\menu.lst ..."
   SetDetailsPrint none
-  IfFileExists $BootDriveGEEXBOX\boot\isolinux.cfg lblcfg 0
-  MessageBox MB_OK|MB_ICONEXCLAMATION "$BootDriveGEEXBOX\boot\isolinux.cfg not found!$\r$\nThis is a fatal error and installation can not proceed.$\r$\nPress 'OK' to exit the installer."
+  IfFileExists $BootDriveGEEXBOX\isolinux\isolinux.cfg lblcfg 0
+  MessageBox MB_OK|MB_ICONEXCLAMATION "$BootDriveGEEXBOX\isolinux\isolinux.cfg not found!$\r$\nThis is a fatal error and installation can not proceed.$\r$\nPress 'OK' to exit the installer."
   Call CleanUp
   Call CleanUpRoot
   Call CleanUpGrub
@@ -1057,9 +1061,9 @@ Function WriteGrubMenu
 
 lblcfg:
 
-  FileOpen $0 $BootDriveGEEXBOX\boot\menu.lst w
+  FileOpen $0 $BootDriveGEEXBOX\menu.lst w
   FileWrite $0 "#This file was written by 'GeeXboX installer for Windows' for grub4dos boot loader.$\r$\n$\r$\n$\r$\n"
-  FileWrite $0 "splashimage /GEEXBOX/usr/share/grub-splash.xpm.gz$\r$\ntimeout 15$\r$\ndefault 0$\r$\n$\r$\n$\r$\n"
+  FileWrite $0 "splashimage /GEEXBOX/boot/grub-splash.xpm.gz$\r$\ntimeout 15$\r$\ndefault 0$\r$\n$\r$\n$\r$\n"
   FileClose $0
   Call CFG2LST
   SetDetailsPrint both
@@ -1081,7 +1085,7 @@ Function CFG2LST
 # Get command line
   Strcpy $0 0				; counter
   Strcpy $1 ""				; entry flag
-  ${LineSum} "$BootDriveGEEXBOX\boot\isolinux.cfg" $R1
+  ${LineSum} "$BootDriveGEEXBOX\isolinux\isolinux.cfg" $R1
 
 lblcfg2lstloop:
   IntOp $0 $0 + 1
@@ -1092,7 +1096,7 @@ lblcfg2lstloop:
     FileClose $R0
     Return
   ${EndIf}
-  ${LineRead} "$BootDriveGEEXBOX\boot\isolinux.cfg" "$0" $2
+  ${LineRead} "$BootDriveGEEXBOX\isolinux\isolinux.cfg" "$0" $2
   Strcmp $2 "" lblcfg2lstloop
   Strcpy $3 $2 13
   Strcmp $3 "LABEL install" 0 +3
@@ -1111,7 +1115,7 @@ lblcfg2lstloop:
 next:
   Strcmp $3 "  APPEND" 0 lblcfg2lstloop		; write new entry
     Strcpy $3 $2 "" 26
-    FileWrite $R0 "kernel=/GEEXBOX/boot/vmlinuz $3initrd=/GEEXBOX/boot/initrd.gz$\r$\n$\r$\n"
+    FileWrite $R0 "kernel=/GEEXBOX/vmlinuz $3initrd=/GEEXBOX/initrd$\r$\n$\r$\n"
     Strcpy $1 ""
     Goto lblcfg2lstloop
 
@@ -1221,8 +1225,8 @@ Function WriteSyslinuxCfg
   SetDetailsPrint both
   DetailPrint "Writing $BootDrivesyslinux.cfg ..."
   SetDetailsPrint none
-  IfFileExists $BootDriveGEEXBOX\boot\isolinux.cfg lblwritecfg 0
-  MessageBox MB_OK|MB_ICONEXCLAMATION "$BootDriveGEEXBOX\boot\isolinux.cfg not found!$\r$\nThis is a fatal error and installation can not proceed.$\r$\nPress 'OK' to exit the installer."
+  IfFileExists $BootDriveGEEXBOX\isolinux\isolinux.cfg lblwritecfg 0
+  MessageBox MB_OK|MB_ICONEXCLAMATION "$BootDriveGEEXBOX\isolinux\isolinux.cfg not found!$\r$\nThis is a fatal error and installation can not proceed.$\r$\nPress 'OK' to exit the installer."
   Call CleanUp
   Call CleanUpRoot
   Call CleanUpGrub
@@ -1233,20 +1237,20 @@ lblwritecfg:
   FileOpen $0 $BootDrivesyslinux.cfg w
   FileWrite $0 "#This file was written by 'GeeXboX installer for Windows' for Syslinux boot loader.$\r$\n$\r$\n$\r$\n"
   Strcpy $1 0				; counter
-  ${LineSum} "$BootDriveGEEXBOX\boot\isolinux.cfg" $R1
+  ${LineSum} "$BootDriveGEEXBOX\isolinux\isolinux.cfg" $R1
 
 lblwritecfgloop:
   IntOp $1 $1 + 1
   ${If} $1 <= $R1
-    ${LineRead} "$BootDriveGEEXBOX\boot\isolinux.cfg" "$1" $2
+    ${LineRead} "$BootDriveGEEXBOX\isolinux\isolinux.cfg" "$1" $2
     Strcpy $4 $2 13
     Strcmp $4 "LABEL install" 0 +3
       IntOp $1 $1 + 3
       Goto lblwritecfgloop
-    ${WordReplace} $2 "vesamenu.c32" "/GEEXBOX/boot/vesamenu.c32" "+" $3
-    ${WordReplace} $3 "splash.png" "/GEEXBOX/boot/splash.png" "+" $2
-    ${WordReplace} $2 "vmlinuz" "/GEEXBOX/boot/vmlinuz" "+" $3
-    ${WordReplace} $3 "initrd.gz" "/GEEXBOX/boot/initrd.gz" "+" $2
+    ${WordReplace} $2 "vesamenu.c32" "/GEEXBOX/isolinux/vesamenu.c32" "+" $3
+    ${WordReplace} $3 "splash.png" "/GEEXBOX/isolinux/splash.png" "+" $2
+    ${WordReplace} $2 "vmlinuz" "/GEEXBOX/vmlinuz" "+" $3
+    ${WordReplace} $3 "initrd" "/GEEXBOX/initrd" "+" $2
     FileWrite $0 "$2"
     Goto lblwritecfgloop
   ${EndIf}
